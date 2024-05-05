@@ -1,4 +1,4 @@
-Shader "Andrii/USB_2"
+Shader "Andrii/USB_3"
 {
     Properties
     {
@@ -74,7 +74,7 @@ Shader "Andrii/USB_2"
                 // declare normals
                 float3 n = i.normalWorld;
                 float3 col = FakeLight_float (n);
-                return float4(col.rgb, 0.5);
+                return float4(col.rgb, 1);
 
             }
 
