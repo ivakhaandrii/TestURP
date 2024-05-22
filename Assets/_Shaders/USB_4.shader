@@ -1,10 +1,9 @@
-Shader "Andrii/USB_3"
+Shader "Andrii/USB_4"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        // add a property to rotate the UV
-        _Rotation ("Rotation", Range(0, 360)) = 0
+        _Zoom ("Zoom", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -42,28 +41,7 @@ Shader "Andrii/USB_3"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _Rotation;
-
-            void Unity_Rotate_Degrees_float
-            (
-                 float2 UV,
-                 float2 Center,
-                 float Rotation,
-                 out float2 Out
-            )
-            {
-                 Rotation = Rotation * (3.14f/180.0f);
-                 UV -= Center;
-                 float s = sin(Rotation);
-                float c = cos(Rotation);
-                float2x2 rMatrix = float2x2(c, -s, s, c);
-                 rMatrix *= 0.5;
-                 rMatrix += 0.5;
-                 rMatrix = rMatrix * 2 - 1;
-                 UV.xy = mul(UV.yx, rMatrix);
-                 UV += Center;
-                 Out = UV;
-            }
+            float _Zoom;
 
             v2f vert (appdata v)
             {
@@ -77,18 +55,14 @@ Shader "Andrii/USB_3"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float u = abs(i.uv.x - 0.5);
-                float v = abs(i.uv.y - 0.5);
-                // link the rotation property
-                float rotation = _Rotation;
-                // center the rotation pivot
-                float center = 0.5;
-                // generate new UV coordinates for the texture
-                float2 uv = 0;
-                Unity_Rotate_Degrees_float(float2(u,v), center, rotation, uv);
-                fixed4 col = tex2D(_MainTex, uv);
+                float u = ceil(i.uv.x) * 0.5;
+                float v = ceil(i.uv.y) * 0.5;
+                float uLerp = lerp(u, i.uv.x, _Zoom);
+                float vLerp = lerp(v, i.uv.y, _Zoom);
+                // pass coordinates to the texture
+                fixed4 col = tex2D(_MainTex, float2(uLerp , vLerp));
                 //UNITY_APPLY_FOG(i.fogCoord, col);
-                 return col;
+                return col;
             }
             ENDHLSL
         }
